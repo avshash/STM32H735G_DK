@@ -1,0 +1,4 @@
+#
+COMPILE_FILE ARM_GPP   H735MemoryManager
+COMPILE_FILE ARM_GPP   H735MpuManager
+

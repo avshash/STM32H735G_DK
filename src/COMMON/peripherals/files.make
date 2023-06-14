@@ -1,0 +1,6 @@
+#
+#
+DIR_MODULE ospi
+DIR_MODULE i2c
+DIR_MODULE ltdc
+

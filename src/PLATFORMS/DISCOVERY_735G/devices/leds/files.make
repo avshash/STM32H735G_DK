@@ -1,0 +1,5 @@
+#
+MODULE_NAME  LED_MANAGER
+#
+COMPILE_FILE ARM_GPP   Disc735ModuleManagerLeds
+

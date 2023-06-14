@@ -1,0 +1,7 @@
+MODER    : 0xfabffaff
+OSPEEDR  : 0x0a800a00
+PUPDR    : 0x00000000
+OTYPER   : 0x00000000
+AFR[0]   : 0xa0aa0000
+AFR[1]   : 0x00999000
+

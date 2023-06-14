@@ -1,0 +1,7 @@
+#
+MODULE_NAME  TOUCH_SCREEN_MANAGER
+#
+COMPILE_FILE ARM_GPP   ModuleManagerTouchScreen
+#
+DIR_MODULE focal_tech
+

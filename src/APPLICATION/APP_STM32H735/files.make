@@ -1,0 +1,4 @@
+#
+COMPILE_FILE ARM_GPP        basic_stm32h735
+COMPILE_FILE ARM_GPP_EXE    basic_stm32h735
+

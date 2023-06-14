@@ -1,0 +1,7 @@
+#
+DIR_MODULE system
+DIR_MODULE peripherals
+DIR_MODULE devices
+#
+GLOBAL_PARAM REDIRECT_PATH "%_LIBRARY_PATH%redirect/"
+
