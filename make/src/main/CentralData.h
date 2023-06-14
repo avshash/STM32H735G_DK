@@ -1,0 +1,20 @@
+#ifndef _CENTRAL_DATA_H_
+#define _CENTRAL_DATA_H_
+
+#include "String.h"
+#include "TypePath.h"
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @class:    CentralData
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class CentralData
+{
+public:
+  static void appendPathName (TypePath, const char *);
+  static const String & path (TypePath);
+
+private:
+  static String m_paths[PATH_TYPE_ARRAY_SIZE];
+};
+
+#endif  // _CENTRAL_DATA_H_

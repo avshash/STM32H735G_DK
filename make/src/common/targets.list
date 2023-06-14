@@ -1,0 +1,9 @@
+TARGETS_LIST="\
+  common.o \
+  OutOfMemory.o \
+  InternalError.o \
+  InputError.o \
+  String.o \
+  StringAPtr.o \
+"
+

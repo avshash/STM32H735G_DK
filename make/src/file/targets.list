@@ -1,0 +1,9 @@
+TARGETS_LIST="\
+  FileReader.o \
+  FileWriter.o \
+  FileBuffer.o \
+  FileParser.o \
+"
+
+
+

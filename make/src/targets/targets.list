@@ -1,0 +1,7 @@
+TARGETS_LIST="\
+  Target.o \
+  FileParserTarget.o \
+"
+
+
+

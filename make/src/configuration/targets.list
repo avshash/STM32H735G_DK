@@ -1,0 +1,9 @@
+TARGETS_LIST="\
+  Configuration.o \
+  FileParserConfiguration.o \
+  FileParserConfigurationRead.o \
+  FileParserConfigurationTarget.o \
+  Cleanup.o \
+"
+
+

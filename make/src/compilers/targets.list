@@ -1,0 +1,12 @@
+TARGETS_LIST="\
+  Compiler.o \
+  ObjectVariableRule.o \
+  ModuleParamRule.o \
+  MakeRule.o \
+  MakeRuleConst.o \
+  MakeRuleParam.o \
+  FileParserCompiler.o \
+"
+
+
+

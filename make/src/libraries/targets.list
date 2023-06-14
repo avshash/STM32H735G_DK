@@ -1,0 +1,12 @@
+TARGETS_LIST="\
+  Libraries.o \
+  Library.o \
+  LibraryNode.o \
+  LibraryNodeTarget.o \
+  FileParserLibrary.o \
+  FileParserLibraryRead.o \
+  FileParserLibraryActivate.o \
+"
+
+
+

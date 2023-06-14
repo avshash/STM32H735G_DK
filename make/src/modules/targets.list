@@ -1,0 +1,11 @@
+TARGETS_LIST="\
+  Module.o \
+  SinglePathData.o \
+  FileParserModule.o \
+  FileParserModuleRead.o \
+  FileParserModuleActivate.o \
+  ActiveObject.o \
+"
+
+
+

@@ -1,0 +1,22 @@
+"
+
+if [ "$1" == "clean" ]
+  then
+    COMMAND="rmdir --ignore-fail-on-non-empty "
+fi
+
+if [ "$1" == "create" ]
+  then
+    COMMAND="mkdir -p "
+fi
+
+if [ "$COMMAND" == "" ]
+  then
+    echo "Bad param - '$1'. No action commited."
+  else
+    for subdir in $SUBDIRS;
+    do
+      $COMMAND $subdir
+    done
+fi
+

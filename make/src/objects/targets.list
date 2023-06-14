@@ -1,0 +1,9 @@
+TARGETS_LIST="\
+  Object.o \
+  ObjectAPtr.o \
+  StringObjectPair.o \
+  SetStringObject.o \
+  QueueString.o \
+  QueueObject.o \
+"
+

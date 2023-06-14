@@ -1,0 +1,16 @@
+TARGETS_LIST="\
+"
+
+SUBDIRS_LIST="\
+  main \
+  common \
+  objects \
+  file \
+  configuration \
+  libraries \
+  modules \
+  compilers \
+  targets \
+"
+
+

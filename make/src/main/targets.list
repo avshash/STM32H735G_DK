@@ -1,0 +1,7 @@
+TARGETS_LIST="\
+  main.o \
+  Central.o \
+  CentralData.o \
+"
+
+
