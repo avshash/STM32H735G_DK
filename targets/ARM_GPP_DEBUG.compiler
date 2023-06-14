@@ -1,0 +1,55 @@
+# gpp compiler, debug version.
+COMPILER_NAME     ARM_GPP
+# System params.
+VARIABLE_RULE     _SOURCE_PATH              _BIN_2_SOURCE _REL_PATH
+VARIABLE_RULE     _PREFIX_FILE_SOURCE       _SOURCE_PATH _BASE_NAME
+VARIABLE_RULE     _FILE_SOURCE              _PREFIX_FILE_SOURCE ".cc"
+VARIABLE_RULE     _OBJECT_TARGET_PATH       _TARGET_BASE_PATH _REL_PATH
+VARIABLE_RULE     _PREFIX_FILE_TARGET       _OBJECT_TARGET_PATH _BASE_NAME
+VARIABLE_RULE     _FILE_TARGET_OBJECT       _PREFIX_FILE_TARGET ".o"
+VARIABLE_RULE     _FILE_STATIC_OBJECT       _PREFIX_FILE_TARGET ".su"
+VARIABLE_RULE     _REDIRECT_PREFIX          " -I " _BIN_2_SOURCE
+VARIABLE_RULE     _OBJECT_DEP_PATH          ".deps/" _OBJECT_TARGET_PATH
+VARIABLE_RULE     _PREFIX_FILE_DEP          _OBJECT_DEP_PATH _BASE_NAME
+VARIABLE_RULE     _FILE_DEP                 _PREFIX_FILE_DEP ".dep"
+
+#
+MODULE_PARAM      TARGET_RULE               _FILE_TARGET_OBJECT
+MODULE_PARAM      OBJECT_FILE               _FILE_TARGET_OBJECT
+MODULE_PARAM      TARGET_CLEAN_FILE         _FILE_TARGET_OBJECT
+MODULE_PARAM      TARGET_CLEAN_FILE         _FILE_STATIC_OBJECT
+MODULE_PARAM      TARGET_EMPTY_FILE         _FILE_DEP
+
+#
+MAKE_RULE_CONST                 "include "
+MAKE_RULE_CONST                 _FILE_DEP
+MAKE_RULE_CONST                 "\n"
+
+MAKE_RULE_CONST                 _FILE_TARGET_OBJECT
+MAKE_RULE_CONST                 ":\n"
+
+MAKE_RULE_CONST                 "\tarm-none-eabi-g++"
+MAKE_RULE_PARAM                 _REDIRECT_PREFIX REDIRECT_PATH ""
+MAKE_RULE_PARAM                 " -D " GCC_DEFINE ""
+MAKE_RULE_PARAM                 " " GCC_PARAM ""
+
+MAKE_RULE_CONST                 " -o "
+MAKE_RULE_CONST                 _FILE_TARGET_OBJECT
+MAKE_RULE_CONST                 " -c "
+MAKE_RULE_CONST                 _FILE_SOURCE
+
+MAKE_RULE_PARAM                 " -D _MODULE_" MODULE_ACTIVE "=ACTIVE"
+MAKE_RULE_CONST                 " -D ASSERT_LEVEL_ACTIVE=0x30U"
+MAKE_RULE_CONST                 " -D _FILE_UNIQUE_ID=0x"
+MAKE_RULE_CONST                 _FILE_UNIQUE_ID_HEX3
+MAKE_RULE_CONST                 "00000UL"
+MAKE_RULE_CONST                 " -mcpu=cortex-m7 -std=gnu++14 -g3"
+MAKE_RULE_CONST                 " -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti"
+MAKE_RULE_CONST                 " -fno-use-cxa-atexit -Wall -Werror -fstack-usage --specs=nano.specs -mfpu=fpv5-d16"
+MAKE_RULE_CONST                 " -mfloat-abi=hard -mthumb -fmax-errors=3"
+
+MAKE_RULE_CONST                 " -MMD -MP -MF "
+MAKE_RULE_CONST                 _FILE_DEP
+MAKE_RULE_CONST                 " -MT "
+MAKE_RULE_CONST                 _FILE_TARGET_OBJECT
+

@@ -1,0 +1,66 @@
+# gpp compiler, debug version.
+COMPILER_NAME     ARM_GPP_EXE
+
+# System params.
+VARIABLE_RULE     _PATH_TARGET_NAME         "exe/" _BASE_TARGET_NAME
+VARIABLE_RULE     _FILE_TARGET              _PATH_TARGET_NAME ".elf"
+VARIABLE_RULE     _FILE_LIST                _PATH_TARGET_NAME ".list"
+VARIABLE_RULE     _FILE_BIN                 _PATH_TARGET_NAME ".bin"
+VARIABLE_RULE     _FILE_MAP                 _PATH_TARGET_NAME ".map"
+VARIABLE_RULE     _SCRIPT_PREFIX            " -T " _BIN_2_SOURCE
+
+#
+MODULE_PARAM      TARGET_RULE               _FILE_TARGET
+MODULE_PARAM      TARGET_CLEAN_FILE         _FILE_TARGET
+MODULE_PARAM      TARGET_CLEAN_FILE         _FILE_LIST
+MODULE_PARAM      TARGET_CLEAN_FILE         _FILE_BIN
+MODULE_PARAM      TARGET_CLEAN_FILE         _FILE_MAP
+
+# Compilation rule.
+MAKE_RULE_CONST                 _FILE_TARGET
+MAKE_RULE_CONST                 ":"
+MAKE_RULE_PARAM                 " " OBJECT_FILE ""
+MAKE_RULE_CONST                 "\n"
+
+# Compilation actions.
+# Link objects to target.
+MAKE_RULE_CONST                 "\tarm-none-eabi-g++"
+
+MAKE_RULE_CONST                 " -o "
+MAKE_RULE_CONST                 _FILE_TARGET
+
+MAKE_RULE_PARAM                 " " GCC_EXE_PARAM ""
+MAKE_RULE_PARAM                 _SCRIPT_PREFIX ARM_TARGET_SCRIPT ""
+
+MAKE_RULE_CONST                 " -Wl,-Map="
+MAKE_RULE_CONST                 _FILE_MAP
+MAKE_RULE_CONST                 " -mcpu=cortex-m7 -Wl,--gc-sections"
+MAKE_RULE_CONST                 " -static --specs=nosys.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb"
+MAKE_RULE_CONST                 " -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group"
+
+MAKE_RULE_CONST                 " \\\n\t"
+MAKE_RULE_PARAM                 " " OBJECT_FILE "" 
+MAKE_RULE_CONST                 "\n"
+
+VARIABLE_RULE     _FILE_LIST                _BASE_TARGET_NAME ".list"
+VARIABLE_RULE     _FILE_BIN                 _BASE_TARGET_NAME ".bin"
+
+MAKE_RULE_CONST                 "\tarm-none-eabi-size "
+MAKE_RULE_CONST                 _FILE_TARGET
+MAKE_RULE_CONST                 "\n"
+
+MAKE_RULE_CONST                 "\tarm-none-eabi-objdump -h -S "
+MAKE_RULE_CONST                 _FILE_TARGET
+MAKE_RULE_CONST                 " > "
+MAKE_RULE_CONST                 _FILE_LIST
+MAKE_RULE_CONST                 "\n"
+
+
+MAKE_RULE_CONST                 "\tarm-none-eabi-objcopy -O binary "
+MAKE_RULE_CONST                 _FILE_TARGET
+MAKE_RULE_CONST                 " "
+MAKE_RULE_CONST                 _FILE_BIN
+MAKE_RULE_CONST                 "\n"
+
+MAKE_RULE_CONST                 "\n"
+
