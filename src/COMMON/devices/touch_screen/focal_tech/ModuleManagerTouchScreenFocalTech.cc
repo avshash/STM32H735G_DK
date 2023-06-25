@@ -1,6 +1,7 @@
 #include "Common.h"
 #include "ModuleManagerTouchScreenFocalTech.h"
 
+#include "I2cMasterManager.h"
 #include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -8,11 +9,12 @@
 // @method:   constructor
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ModuleManagerTouchScreenFocalTech::ModuleManagerTouchScreenFocalTech (ListenerTouchScreen & listener,
-                                                                      I2cMaster & interface,
+                                                                      I2cMasterManager & interface,
                                                                       bool b_reversed) :
   ModuleManagerTouchScreen (listener),
   m_interface (interface),
   m_reversed (b_reversed),
+  m_active (false),
   m_query_time ()
 {
 }
@@ -31,11 +33,11 @@ ModuleManagerTouchScreenFocalTech::doAction (TypeModuleAction action)
       break;
 
     case MODULE_ACTION_ACTIVATE_GPIO:
-      activateGpio ();
+      m_interface.activateGpio ();
       break;
 
     case MODULE_ACTION_START:
-      startModule ();
+      m_interface.configure (100000);
       verifyId ();
       break;
 
@@ -49,40 +51,21 @@ ModuleManagerTouchScreenFocalTech::doAction (TypeModuleAction action)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    ModuleManagerTouchScreenFocalTech
-// @method:   activateGpio
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void
-ModuleManagerTouchScreenFocalTech::activateGpio ()
-{
-  m_interface.activateGpio ();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    ModuleManagerTouchScreenFocalTech
-// @method:   startModule
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void
-ModuleManagerTouchScreenFocalTech::startModule ()
-{
-  uint32_t params[I2C_CONFIGURATION_PARAMS_COUNT];
-
-  memset (params, 0, sizeof (params));
-  params[I2C_CONFIGURATION_PARAM_FREQUENCY] = 100000;
-
-  m_interface.configure (params);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    ModuleManagerTouchScreenFocalTech
 // @method:   verifyId
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
 ModuleManagerTouchScreenFocalTech::verifyId ()
 {
-  I2cMessage query = {0x38, 0xA8, 1};
+  uint8_t register_address = 0xA8;
 
-  m_interface.read (query);
-  ASSERT_CRITICAL (query.m_message_data[0] == 0x51);
+  m_interface.setupTransaction (0x38, 1, &register_address, 1);
+  uint8_t const * reply = NULL;
+  while (reply == NULL)
+  {
+    reply = m_interface.tick ();
+  }
+
+  ASSERT_CRITICAL (*reply == 0x51);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,44 +75,70 @@ ModuleManagerTouchScreenFocalTech::verifyId ()
 void
 ModuleManagerTouchScreenFocalTech::tick ()
 {
-  if (m_query_time.testExpired ())
+  if (m_active)
   {
-    I2cMessage query = {0x38, 0x02, 11};
-  
-    m_interface.read (query);
+    const uint8_t * reply = m_interface.tick ();
 
-    TouchData current_data;
-    memset (&current_data, 0, sizeof (current_data));
-    current_data.m_touch_count = query.m_message_data[0];
-
-    if (current_data.m_touch_count == 0xFFU)
+    if (reply != NULL)
     {
-      // On wakeup, FocalTech chips initialize registers to 0xFF.
-      current_data.m_touch_count = 0;
+      handleReply (reply);
+
+      // Set next query to 100 ms.
+      m_active = false;
+      m_query_time.leaseFromNow (100);
     }
-
-    if (0 < current_data.m_touch_count)
-    {
-      uint16_t param_x = ((((uint16_t) query.m_message_data[1]) & 0x0F) << 8) + query.m_message_data[2];
-      uint16_t param_y = ((((uint16_t) query.m_message_data[3]) & 0x0F) << 8) + query.m_message_data[4];
-
-      current_data.m_param_x0 = m_reversed ? param_y : param_x;
-      current_data.m_param_y0 = m_reversed ? param_x : param_y;
-    }
-
-    if (1 < current_data.m_touch_count)
-    {
-      uint16_t param_x = ((((uint16_t) query.m_message_data[7]) & 0x0F) << 8) + query.m_message_data[8];
-      uint16_t param_y = ((((uint16_t) query.m_message_data[9]) & 0x0F) << 8) + query.m_message_data[10];
-
-      current_data.m_param_x1 = m_reversed ? param_y : param_x;
-      current_data.m_param_y1 = m_reversed ? param_x : param_y;
-    }
-
-    registerData (current_data);
-
-    ASSERT_TEST (current_data.m_touch_count < 3);
-    m_query_time.leaseFromNow (100);
   }
+  else
+  {
+    if (m_query_time.testExpired ())
+    {
+      uint8_t register_address = 0x02;
+
+      // Query touch screen for 11 bytes.
+      m_interface.setupTransaction (0x38, 1, &register_address, 11);
+
+      m_active = true;
+    }
+  }
+}
+  
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @class:    ModuleManagerTouchScreenFocalTech
+// @method:   handleReply
+// @note:     Query touch screen for 11 bytes.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void
+ModuleManagerTouchScreenFocalTech::handleReply (const uint8_t * reply)
+{
+  TouchData current_data;
+  memset (&current_data, 0, sizeof (current_data));
+
+  current_data.m_touch_count = reply[0];
+
+  if (current_data.m_touch_count == 0xFFU)
+  {
+    // On wakeup, FocalTech chips initialize registers to 0xFF.
+    current_data.m_touch_count = 0;
+  }
+
+  if (0 < current_data.m_touch_count)
+  {
+    uint16_t param_x = ((((uint16_t) reply[1]) & 0x0F) << 8) + reply[2];
+    uint16_t param_y = ((((uint16_t) reply[3]) & 0x0F) << 8) + reply[4];
+
+    current_data.m_param_x0 = m_reversed ? param_y : param_x;
+    current_data.m_param_y0 = m_reversed ? param_x : param_y;
+  }
+
+  if (1 < current_data.m_touch_count)
+  {
+    uint16_t param_x = ((((uint16_t) reply[7]) & 0x0F) << 8) + reply[8];
+    uint16_t param_y = ((((uint16_t) reply[9]) & 0x0F) << 8) + reply[10];
+
+    current_data.m_param_x1 = m_reversed ? param_y : param_x;
+    current_data.m_param_y1 = m_reversed ? param_x : param_y;
+  }
+
+  registerData (current_data);
 }
 

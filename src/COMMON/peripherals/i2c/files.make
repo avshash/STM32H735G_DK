@@ -1,4 +1,6 @@
 #
 MODULE_NAME  I2C
 #
+COMPILE_FILE ARM_GPP   I2cMasterManager
+
 

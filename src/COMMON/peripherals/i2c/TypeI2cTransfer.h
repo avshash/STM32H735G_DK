@@ -1,14 +1,15 @@
-#ifndef _TYPE_INTERRUPT_FAMILY_H_
-#define _TYPE_INTERRUPT_FAMILY_H_
+#ifndef _TYPE_I2C_TRANSFER_H_
+#define _TYPE_I2C_TRANSFER_H_
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @enum:     TypeInterruptFamily
+// @enum:     TypeI2cTransfer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-enum TypeInterruptFamily
+enum TypeI2cTransfer
 {
-  INTERRUPT_HANDLER_ERROR,
-  INTERRUPT_HANDLER_USB,
-  INTERRUPT_HANDLER_COUNT
+  I2C_TRANSFER_IDLE,
+  I2C_TRANSFER_ACTIVE,
+  I2C_TRANSFER_STOPPED,
+  I2C_TRANSFER_GOOD
 };
 
-#endif  // _TYPE_INTERRUPT_FAMILY_H_
+#endif  // _TYPE_I2C_TRANSFER_H_

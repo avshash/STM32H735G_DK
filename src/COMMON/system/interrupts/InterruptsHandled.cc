@@ -8,10 +8,10 @@ namespace
 // @function: handleInterrupt
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-handleInterrupt (TypeInterruptFamily family, TypeInterruptAction action)
+handleInterrupt (TypeInterruptHandler family, TypeInterruptAction action)
 {
   ModuleManagerInterrupts & interrupts_manager = ModuleManager::getInterrupts ();
-  interrupts_manager.activateInterrupt (family, action);
+  interrupts_manager.handleInterrupt (family, action);
 }
 };
 
@@ -46,4 +46,13 @@ extern "C" void handledUsbInterruptGeneral ()
 {
   handleInterrupt (INTERRUPT_HANDLER_USB, INTERRUPT_ACTION_USB_GENERAL);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @function: handledI2c4
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+extern "C" void handledI2c4 ()
+{
+  handleInterrupt (INTERRUPT_HANDLER_I2C4, INTERRUPT_ACTION_BASIC);
+}
+
 

@@ -13,9 +13,9 @@ public:
 
 private:
   virtual void doAction (TypeModuleAction) final;
-  virtual void activateInterrupt (TypeInterruptFamily, TypeInterruptAction) final;
+  virtual void enableIrq (int irq_number, int priority) final;
+
   void open ();
-  void setPriority (int irq_number, uint32_t priority);
   void initSysTick ();
 };
 

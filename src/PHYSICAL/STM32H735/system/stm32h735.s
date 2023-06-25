@@ -179,8 +179,8 @@ irq_table:
   .word	unhandledInterrupt1B0                         // OCTOSPI1 global interrupt.
   .word	unhandledInterrupt1B4                         // LPTIM1 global interrupt.
   .word	unhandledInterrupt1B8                         // HDMI-CEC global interrupt.
-  .word	unhandledInterrupt1BC                         // I2C4 event interrupt.
-  .word	unhandledInterrupt1C0                         // I2C4 error interrupt.
+  .word	handledI2c4                                   // I2C4 event interrupt.
+  .word	handledI2c4                                   // I2C4 error interrupt.
   .word	unhandledInterrupt1C4                         // SPDIFRX global interrupt.
   .word	0
   .word	0

@@ -2,7 +2,7 @@
 #define _DISC735_MODULE_MANAGER_TOUCH_SCREEN_FOCAL_TECH_H_
 
 #include "ModuleManagerTouchScreenFocalTech.h"
-#include "PlatformI2cMaster4.h"
+#include "PlatformI2cMasterManager4.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    Disc735ModuleManagerTouchScreenFocalTech
@@ -13,7 +13,7 @@ public:
   Disc735ModuleManagerTouchScreenFocalTech (ListenerTouchScreen &);
 
 private:
-   PlatformI2cMaster4 m_interface;
+   PlatformI2cMasterManager4 m_interface;
 };
 
 typedef Disc735ModuleManagerTouchScreenFocalTech PlatformModuleManagerTouchScreen;

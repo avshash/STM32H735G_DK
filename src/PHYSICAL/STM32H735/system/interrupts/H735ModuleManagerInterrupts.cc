@@ -14,16 +14,6 @@ H735ModuleManagerInterrupts::H735ModuleManagerInterrupts ()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    H735ModuleManagerInterrupts
-// @method:   activateInterrupt
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void
-H735ModuleManagerInterrupts::activateInterrupt (TypeInterruptFamily, TypeInterruptAction)
-{
-  ASSERT_CRITICAL (false);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    H735ModuleManagerInterrupts
 // @method:   doAction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
@@ -64,11 +54,27 @@ H735ModuleManagerInterrupts::open ()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    H735ModuleManagerInterrupts
-// @method:   setPriority
+// @method:   enableIrq
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-H735ModuleManagerInterrupts::setPriority (int irq_number, uint32_t priority)
+H735ModuleManagerInterrupts::enableIrq (int irq_number, int priority)
 {
-  ASSERT_CRITICAL (false);
+  ASSERT_CRITICAL ((0 <= priority) && (priority <= 7));
+  ASSERT_CRITICAL ((0 <= irq_number) && (irq_number <= 127));
+
+  // Interrupt priority grouping is 3 bits.
+  int ipr_shift = 8 * (irq_number % 4);
+  uint32_t priority_shifted = (((uint32_t) priority) << 5) << ipr_shift;
+  uint32_t mask = ~(0x000000FFUL << ipr_shift);
+
+  uint32_t active_value = NVIC_REGISTERS.NVIC_IPR[irq_number / 4];
+
+  // Set priority.
+  NVIC_REGISTERS.NVIC_IPR[irq_number / 4] = (active_value & mask) | priority_shifted;
+  // Enable interrupt.
+  int iser_offset = irq_number / 32;
+  uint32_t iser_enable_mask = 0x00000001UL << (irq_number % 32);
+  NVIC_REGISTERS.NVIC_ISER[iser_offset] = NVIC_REGISTERS.NVIC_ISER[iser_offset] | iser_enable_mask;
 }
+
 
