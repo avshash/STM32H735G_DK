@@ -6,7 +6,6 @@
 #include "TypeInterruptAction.h"
 
 class Interrupt;
-class CriticalSection;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    ModuleManagerInterrupts
@@ -18,12 +17,10 @@ public:
 
   void registerInterrupt (Interrupt &);
   void handleInterrupt (TypeInterruptHandler, TypeInterruptAction);
-  void criticalSection (CriticalSection *);
 
 private:
   virtual void enableIrq (int irq_number, int priority) = 0;
 
-  CriticalSection * m_critical_section;
   Interrupt * m_handlers[INTERRUPT_HANDLER_ACTIVE_COUNT];
 };
 

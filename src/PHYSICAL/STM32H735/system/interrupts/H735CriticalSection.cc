@@ -1,20 +1,28 @@
 #include "Common.h"
 #include "H735CriticalSection.h"
 
-#include "ModuleManagerInterrupts.h"
 #include "PhysicalSystemControlRegisters.h"
+
+volatile H735CriticalSection * H735CriticalSection::m_active_critical_section = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    H735CriticalSection
 // @method:   constructor
-// @note:     We have only 8 words, so it's best not to use a loop.
+// @note:     We have only 6 active words, so it's best not to use a loop.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-H735CriticalSection::H735CriticalSection ()
+H735CriticalSection::H735CriticalSection () :
+  m_state (CRITICAL_SECTION_REGISTER),
+  m_prev_active ((H735CriticalSection *) m_active_critical_section)
 {
-  ModuleManagerInterrupts & interrupts_manager = ModuleManager::getInterrupts ();
-  interrupts_manager.criticalSection (this);
+  if ((m_prev_active != NULL) && (m_prev_active->m_state == CRITICAL_SECTION_RESUME))
+  {
+    // Handle the case where a low priority resumed interrupt preempts a high priority disabled interrupt.
+    m_prev_active->resumeInterrupts ();
+  }
 
-  registerState ();
+  m_active_critical_section = this;
+
+  registerActiveInterrupts ();
   disableInterrupts ();
 }
 
@@ -24,24 +32,29 @@ H735CriticalSection::H735CriticalSection ()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 H735CriticalSection::~H735CriticalSection ()
 {
-  setEnabling ();
+  m_state = CRITICAL_SECTION_RESUME;
 
-  enableInterrupts ();
+  resumeInterrupts ();
+  m_active_critical_section = m_prev_active;
 
-  ModuleManagerInterrupts & interrupts_manager = ModuleManager::getInterrupts ();
-  interrupts_manager.criticalSection (NULL);
+  if ((m_prev_active != NULL) && (m_prev_active->m_state == CRITICAL_SECTION_REGISTER))
+  {
+    // Handle the case where a critical section activated or disabled some handler.
+    // Note that the previous active object is still suspended, as we have higher priority.
+    m_prev_active->registerActiveInterrupts ();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    H735CriticalSection
-// @method:   enableInterrupts
-// @note:     We have only 8 words, so it's best not to use a loop.
+// @method:   resumeInterrupts
+// @note:     We have only 6 active words, so it's best not to use a loop.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-H735CriticalSection::enableInterrupts ()
+H735CriticalSection::resumeInterrupts ()
 {
   volatile uint32_t * target = NVIC_REGISTERS.NVIC_ISER;
-  uint32_t * iser_vector = m_iser_vector;
+  volatile uint32_t * iser_vector = m_iser_vector;
 
   target[0] = iser_vector[0];
   target[1] = iser_vector[1];
@@ -49,20 +62,18 @@ H735CriticalSection::enableInterrupts ()
   target[3] = iser_vector[3];
   target[4] = iser_vector[4];
   target[5] = iser_vector[5];
-  target[6] = iser_vector[6];
-  target[7] = iser_vector[7];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    H735CriticalSection
-// @method:   registerState
-// @note:     We have only 8 words, so it's best not to use a loop.
+// @method:   registerActiveInterrupts
+// @note:     We have only 6 active words, so it's best not to use a loop.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-H735CriticalSection::registerState ()
+H735CriticalSection::registerActiveInterrupts ()
 {
   volatile uint32_t * state = NVIC_REGISTERS.NVIC_ISER;
-  uint32_t * iser_vector = m_iser_vector;
+  volatile uint32_t * iser_vector = m_iser_vector;
 
   iser_vector[0] = state[0];
   iser_vector[1] = state[1];
@@ -70,14 +81,16 @@ H735CriticalSection::registerState ()
   iser_vector[3] = state[3];
   iser_vector[4] = state[4];
   iser_vector[5] = state[5];
-  iser_vector[6] = state[6];
-  iser_vector[7] = state[7];
+
+  m_state = CRITICAL_SECTION_ACTIVE;
+
+  ASSERT_TEST ((state[6] == 0) && (state[7] == 0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    H735CriticalSection
 // @method:   disableInterrupts
-// @note:     We have only 8 words, so it's best not to use a loop.
+// @note:     We have only 6 active words, so it's best not to use a loop.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
 H735CriticalSection::disableInterrupts ()
@@ -90,8 +103,6 @@ H735CriticalSection::disableInterrupts ()
   disable[3] = 0xFFFFFFFFUL;
   disable[4] = 0xFFFFFFFFUL;
   disable[5] = 0xFFFFFFFFUL;
-  disable[6] = 0xFFFFFFFFUL;
-  disable[7] = 0xFFFFFFFFUL;
 }
 
 

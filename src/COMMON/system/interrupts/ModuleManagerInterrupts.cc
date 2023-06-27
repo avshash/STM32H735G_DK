@@ -10,8 +10,7 @@
 // @method:   constructor
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ModuleManagerInterrupts::ModuleManagerInterrupts () :
-  ModuleManager (MODULE_MANAGER_INTERRUPTS),
-  m_critical_section (NULL)
+  ModuleManager (MODULE_MANAGER_INTERRUPTS)
 {
   memset (m_handlers, 0, sizeof (m_handlers));
 }
@@ -23,14 +22,6 @@ ModuleManagerInterrupts::ModuleManagerInterrupts () :
 void
 ModuleManagerInterrupts::handleInterrupt (TypeInterruptHandler family, TypeInterruptAction action)
 {
-  if (m_critical_section != NULL)
-  {
-    // We must cover the case where we leave a critical section, but interrupts are not fully enabled yet.
-    // In such a case, a low priority interrupt might be reached before a high priority.
-    // (This happends when enabling interrupts is not implemented as an atomic action).
-    m_critical_section->handleInterrupt ();
-  }
-
   ASSERT_TEST (m_handlers[family] != NULL);
   m_handlers[family]->handleInterrupt (action);
 }
@@ -56,24 +47,6 @@ ModuleManagerInterrupts::registerInterrupt (Interrupt & handler)
   {
     int irq_number = handler.getIrqNumber (irq_index);
     enableIrq (irq_number, priority);
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    ModuleManagerInterrupts
-// @method:   criticalSection
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void
-ModuleManagerInterrupts::criticalSection (CriticalSection * critical_section)
-{
-  if (critical_section != NULL)
-  {
-    critical_section->setPrevActive (m_critical_section);
-    m_critical_section = critical_section;
-  }
-  else
-  {
-    m_critical_section = m_critical_section->getPrevActive ();
   }
 }
 
