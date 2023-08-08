@@ -11,6 +11,7 @@ class ModuleManagerLeds;
 class ModuleManagerLcd;
 class ModuleManagerFlash;
 class ModuleManagerSdram;
+class ModuleManagerUsb;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    ModuleManager
@@ -27,6 +28,7 @@ public:
   static ModuleManagerFlash & getFlash ();
   static ModuleManagerSdram & getSdram ();
   static ModuleManagerClockControl & getClockControl ();
+  static ModuleManagerUsb & getUsb ();
 
 protected:
   ModuleManager (TypeModuleManager);

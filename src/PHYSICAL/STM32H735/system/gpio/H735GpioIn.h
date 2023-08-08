@@ -1,0 +1,21 @@
+#ifndef _H735_GPIO_IN_H_
+#define _H735_GPIO_IN_H_
+
+#include "H735Gpio.h"
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @class:    H735GpioIn
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class H735GpioIn : public H735Gpio
+{
+public:
+  H735GpioIn (TypeGpioBank, int pin_number);
+  ~H735GpioIn ();
+
+  void activate (TypeGpioLoad);
+  bool readValue () const;
+};
+
+typedef H735GpioIn PhysicalGpioIn;
+
+#endif  // _H735_GPIO_IN_H_

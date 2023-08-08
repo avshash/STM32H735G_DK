@@ -8,6 +8,7 @@
 #include "ModuleManagerLcd.h"
 #include "ModuleManagerFlash.h"
 #include "ModuleManagerSdram.h"
+#include "ModuleManagerUsb.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    ModuleManager
@@ -112,5 +113,19 @@ ModuleManager::getSdram ()
 
   ModuleManagerSdram * sdram_manager = static_cast <ModuleManagerSdram *> (manager_base);
   return *sdram_manager;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @class:    ModuleManager
+// @method:   getUsb
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ModuleManagerUsb &
+ModuleManager::getUsb ()
+{
+  ModuleManager * manager_base = Main::getModuleManager (MODULE_MANAGER_USB);
+  ASSERT_DEV (manager_base != NULL);
+
+  ModuleManagerUsb * usb_manager = static_cast <ModuleManagerUsb *> (manager_base);
+  return *usb_manager;
 }
 

@@ -1,0 +1,8 @@
+#
+MODULE_NAME  USB_MODULE
+#
+COMPILE_FILE ARM_GPP   ModuleManagerUsb
+#
+DIR_MODULE port
+DIR_MODULE channels
+

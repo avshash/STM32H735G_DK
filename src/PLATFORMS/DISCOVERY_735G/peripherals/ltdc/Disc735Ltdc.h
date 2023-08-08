@@ -1,7 +1,6 @@
 #ifndef _DISC735_LTDC_H_
 #define _DISC735_LTDC_H_
 
-#include "PhysicalGpioAf.h"
 #include "PhysicalLtdc.h"
 #include "PhysicalGpioAf.h"
 #include "PhysicalGpioOut.h"

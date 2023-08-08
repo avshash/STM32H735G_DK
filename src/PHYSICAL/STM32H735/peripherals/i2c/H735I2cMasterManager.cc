@@ -282,22 +282,17 @@ H735I2cMasterManager::getInterruptParam (TypeInterruptParam param)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    H735I2cMasterManager
 // @method:   getIrqNumber
+// @dscr:     Follows table 140, in RM0468.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int
-H735I2cMasterManager::getIrqNumber (int index)
+H735I2cMasterManager::getIrqNumber (int irq_index)
 {
-  switch (index)
-  {
-    case 0:
-      // Event interrupt.
-      return 95;
+  const int nvic_i2c[] = {31, 33, 72, 95, 157};
+  ASSERT_TEST ((0 <= irq_index) && (irq_index <= 1));
 
-    case 1:
-      // Error interrupt.
-      return 96;
-  }
+  int i2c_index = getI2cIndex () - 1;
+  ASSERT_TEST ((0 <= irq_index) && (irq_index < (int) (sizeof (nvic_i2c) / sizeof (int))));
 
-  ASSERT_CRITICAL (false);
-  return 95;
+  return (nvic_i2c[i2c_index] + irq_index);
 }
 

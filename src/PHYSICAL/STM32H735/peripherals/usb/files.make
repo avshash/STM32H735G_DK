@@ -1,0 +1,6 @@
+#
+MODULE_NAME  USB_MODULE
+#
+DIR_MODULE port
+DIR_MODULE channels
+

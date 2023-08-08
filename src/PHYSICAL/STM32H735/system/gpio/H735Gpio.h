@@ -22,6 +22,7 @@ protected:
   void setLoadResistor (TypeGpioLoad load_type);
   void setAfMode (int af_index);
   void setOutput (bool b_value);
+  bool readValue () const;
 
 private:
   void setupClock ();

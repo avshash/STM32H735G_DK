@@ -2,7 +2,9 @@
 #include "Main.h"
 
 #include "ModuleManager.h"
+#include "TextSingleLine.h"
 #include "Timer.h"
+#include "SystemTime.h"
 #include <cstring>
 
 Main * Main::m_singleton;
@@ -53,13 +55,24 @@ Main::getModuleManager (TypeModuleManager manager_type)
 // @method:   main
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-Main::main ()
+Main::main (uint32_t static_size)
 {
   while (1)
   {
     registerPhaseStarted (m_actions_count);
     modulesTick ();
     advancePhase ();
+
+    if (m_actions_count == MODULE_ACTION_TICK)
+    {
+      if (ModuleManager::testModuleActive (MODULE_MANAGER_LCD))
+      {
+        TextSingleLine text_single_line;
+        text_single_line << "Size of static objects is " << static_size << ".";
+      }
+    }
+
+    ASSERT_TEMP (SystemTime::getSystemMilliTime () < 0x3FFF0000UL);
   }
 }
 

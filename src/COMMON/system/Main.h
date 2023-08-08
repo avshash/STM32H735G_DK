@@ -13,7 +13,7 @@ class ModuleManager;
 class Main
 {
 public:
-  void main ();
+  void main (uint32_t static_size);
 
   static void registerModule (ModuleManager *, TypeModuleManager);
   static ModuleManager * getModuleManager (TypeModuleManager);

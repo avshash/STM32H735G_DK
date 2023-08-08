@@ -97,12 +97,12 @@ H735CriticalSection::disableInterrupts ()
 {
   volatile uint32_t * disable = NVIC_REGISTERS.NVIC_ICER;
 
-  disable[0] = 0xFFFFFFFFUL;
-  disable[1] = 0xFFFFFFFFUL;
-  disable[2] = 0xFFFFFFFFUL;
-  disable[3] = 0xFFFFFFFFUL;
-  disable[4] = 0xFFFFFFFFUL;
   disable[5] = 0xFFFFFFFFUL;
+  disable[4] = 0xFFFFFFFFUL;
+  disable[3] = 0xFFFFFFFFUL;
+  disable[2] = 0xFFFFFFFFUL;
+  disable[1] = 0xFFFFFFFFUL;
+  disable[0] = 0xFFFFFFFFUL;
 }
 
 

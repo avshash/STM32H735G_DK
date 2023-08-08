@@ -1,0 +1,9 @@
+#
+MODULE_NAME  USB_MODULE
+#
+COMPILE_FILE ARM_GPP   UsbDevicesManager
+COMPILE_FILE ARM_GPP   UsbDeviceSingle
+#
+DIR_MODULE enumeration
+DIR_MODULE hid
+
