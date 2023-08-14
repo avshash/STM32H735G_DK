@@ -1,37 +1,40 @@
-#ifndef _USB_DEVICE_SINGLE_HID_H_
-#define _USB_DEVICE_SINGLE_HID_H_
+#ifndef _USB_DEVICE_SINGLE_PRINTER_H_
+#define _USB_DEVICE_SINGLE_PRINTER_H_
 
 #include "UsbDeviceSingle.h"
-#include "UsbChannelSingleInterrupt.h"
+#include "UsbChannelSingleBulkOut.h"
 #include "TypeUsbDeviceClass.h"
+#include "TypeUsbPrinterState.h"
 
 class UsbDeviceConfiguration;
 class UsbChannelSingleControlDevice;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    UsbDeviceSingleHid
+// @class:    UsbDeviceSinglePrinter
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class UsbDeviceSingleHid : public UsbDeviceSingle
+class UsbDeviceSinglePrinter : public UsbDeviceSingle
 {
+public:
+  TypeUsbPrinterState getPrinterState () const;
+
 protected:
-  UsbDeviceSingleHid ();
+  UsbDeviceSinglePrinter ();
+
+  void sendPrinterPacket (const uint32_t * packet, uint16_t length, TypeUsbPrinterState printer_state);
 
 private:
-  void handleConfigurationReply (UsbChannelSingleControlDevice &);
-  void attachChannel (UsbChannelSingleControlDevice &);
-
+  void setPrinterState (TypeUsbPrinterState);
   virtual bool testConfiguration (const UsbDeviceConfiguration &) const final;
   virtual void initiateConfiguration (UsbChannelSingleControlDevice &) final;
   virtual void registerSetupReply (UsbChannelSingleControlDevice &) final;
   virtual void deviceTick () final;
   virtual void closeDevice () final;
 
-  virtual TypeUsbDeviceClass getDeviceClass () const = 0;
-  virtual uint8_t getBootReportSize () const = 0;
-  virtual void registerReport (const uint8_t *) = 0;
-  virtual uint16_t getIdlePeriod () const = 0;
+  virtual void clearPrinterBuffer () = 0;
+  virtual void parseNextPacket (TypeUsbPrinterState) = 0;
 
-  UsbChannelSingleInterrupt m_channel;
+  UsbChannelSingleBulkOut m_channel;
+  TypeUsbPrinterState m_printer_state;
 };
 
-#endif  // _USB_DEVICE_SINGLE_HID_H_
+#endif  // _USB_DEVICE_SINGLE_PRINTER_H_

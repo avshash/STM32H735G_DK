@@ -12,7 +12,6 @@ class UsbDeviceSingleHidMouse : public UsbDeviceSingleHid
 public:
   UsbDeviceSingleHidMouse ();
 
-  bool testDeviceActive () const;
   uint16_t getXLocation () const;
   uint16_t getYLocation () const;
   bool testRightButton () const;
@@ -21,12 +20,9 @@ public:
 private:
   virtual TypeUsbDeviceClass getDeviceClass () const final;
   virtual uint8_t getBootReportSize () const final;
-  virtual void registerInitialState (const uint8_t *) final;
   virtual void registerReport (const uint8_t *) final;
-  virtual uint8_t getIdlePeriod () const final;
+  virtual uint16_t getIdlePeriod () const final;
 
-  uint16_t m_x_max;
-  uint16_t m_y_max;
   UsbMouseState m_state;
 };
 

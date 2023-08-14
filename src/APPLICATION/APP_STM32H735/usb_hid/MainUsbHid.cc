@@ -1,5 +1,5 @@
 #include "Common.h"
-#include "MainUsb.h"
+#include "MainUsbHid.h"
 
 #include "ModuleManagerLeds.h"
 #include "ModuleManagerUsb.h"
@@ -8,16 +8,16 @@
 #include <cstring>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    MainUsb
+// @class:    MainUsbHid
 // @method:   constructor
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-MainUsb::MainUsb () :
+MainUsbHid::MainUsbHid () :
   Main (),
   m_physical_manager (),
   m_clock_control (),
   m_interrupts (),
   m_mouse (),
-//  m_keyboard (),
+  m_keyboard (),
   m_green_led_timer (),
   m_green_led_on (false),
   m_refresh_display (true)
@@ -29,13 +29,13 @@ MainUsb::MainUsb () :
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    MainUsb
+// @class:    MainUsbHid
 // @method:   registerPhaseEnded
 // @note:     The green led is turned on once we have finished the 'MODULE_ACTION_START' phase.
 // @note:     This is due to the fact that the main manager is always last, as well as tick advancement between phases.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-MainUsb::registerPhaseStarted (uint32_t action)
+MainUsbHid::registerPhaseStarted (uint32_t action)
 {
   if (action == MODULE_ACTION_START)
   {
@@ -43,7 +43,7 @@ MainUsb::registerPhaseStarted (uint32_t action)
     UsbDevicesManager & devices_manager = module_usb.getDevicesManager ();
 
     devices_manager.registerDevice (m_mouse);
-//    devices_manager.registerDevice (m_keyboard);
+    devices_manager.registerDevice (m_keyboard);
   }
 
   ASSERT_TEST (ModuleManager::testModuleActive (MODULE_MANAGER_LEDS));
@@ -77,11 +77,11 @@ MainUsb::registerPhaseStarted (uint32_t action)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    MainUsb
+// @class:    MainUsbHid
 // @method:   ledTick
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-MainUsb::ledTick ()
+MainUsbHid::ledTick ()
 {
   if (m_green_led_timer.testExpired ())
   {
@@ -94,13 +94,13 @@ MainUsb::ledTick ()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    MainUsb
+// @class:    MainUsbHid
 // @method:   pollMouse
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-MainUsb::pollMouse ()
+MainUsbHid::pollMouse ()
 {
-  if (!m_mouse.testDeviceActive ())
+  if (m_mouse.getDeviceState () != USB_DEVICE_SINGLE_ACTIVE)
   {
     return;
   }
@@ -126,11 +126,11 @@ MainUsb::pollMouse ()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    MainUsb
+// @class:    MainUsbHid
 // @method:   refreshCells
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-MainUsb::refreshCells ()
+MainUsbHid::refreshCells ()
 {
   for (int y_cell = 0; y_cell <= 17; y_cell++)
   {
@@ -148,11 +148,11 @@ MainUsb::refreshCells ()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    MainUsb
+// @class:    MainUsbHid
 // @method:   refreshScreen
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
-MainUsb::refreshScreen ()
+MainUsbHid::refreshScreen ()
 {
   if (m_refresh_display)
   {
@@ -193,7 +193,7 @@ MainUsb::refreshScreen ()
       }
     }
 
-    lcd_manager.displayNextScreen (LCD_ACTIVE_GRAPHICS);
+//    lcd_manager.displayNextScreen (LCD_ACTIVE_GRAPHICS);
 
     m_refresh_display = false;
   }

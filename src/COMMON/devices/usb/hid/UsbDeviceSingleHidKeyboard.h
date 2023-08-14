@@ -14,8 +14,10 @@ public:
 private:
   virtual TypeUsbDeviceClass getDeviceClass () const final;
   virtual uint8_t getBootReportSize () const final;
-  virtual void registerInitialState (const uint8_t *) final;
-  virtual void registerState (const uint8_t *) final;
+  virtual void registerReport (const uint8_t *) final;
+  virtual uint16_t getIdlePeriod () const final;
+
+  char m_cur_key;
 };
 
 #endif  // _USB_DEVICE_SINGLE_HID_KEYBOARD_H_

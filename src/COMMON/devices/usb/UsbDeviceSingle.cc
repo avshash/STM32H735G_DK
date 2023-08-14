@@ -1,11 +1,6 @@
 #include "Common.h"
 #include "UsbDeviceSingle.h"
 
-#include "ModuleManagerUsb.h"
-#include "UsbChannelsManager.h"
-#include "UsbChannelSingleControl.h"
-#include "UsbPort.h"
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    UsbDeviceSingle
 // @method:   constructor

@@ -65,11 +65,12 @@ UsbChannelSingleControl::notifyTransactionComplete (TypeUsbChannelState channel_
 
     case USB_CHANNEL_READY_OUT:
       printMessage ((const uint8_t  *) getRequest (), false);
-      receiveReply (getReplySize ());
+      receiveReply (getReplySize (), 10);
       break;
 
     case USB_CHANNEL_NACK:
-      channelError ();
+      TextSingleLine ().print ("Control channel received a NACK. Retry.");
+      receiveReply (getReplySize (), 10);
       break;
 
     case USB_CHANNEL_ERROR:

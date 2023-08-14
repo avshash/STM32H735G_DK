@@ -22,16 +22,20 @@ bool
 UsbEndpointsDescriptor::parseDescriptor (const uint8_t * descriptor_base)
 {
   UsbEndpointParams * params = NULL;
+  bool b_is_input = ((descriptor_base[2] & 0x80) != 0);
 
   switch (descriptor_base[3] & 0x03)
   {
     case 0x00:
     case 0x01:
+      break;
+
     case 0x02:
+      params = b_is_input ? &m_endpoint_bulk_in : &m_endpoint_bulk_out;
       break;
 
     case 0x03:
-      params = &m_endpoint_interrupt_in;
+      params = b_is_input ? &m_endpoint_interrupt_in : NULL;
       break;
   }
 

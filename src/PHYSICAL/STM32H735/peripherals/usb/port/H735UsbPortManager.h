@@ -20,6 +20,8 @@ private:
   virtual void setupRcc () final;
   virtual void configure () final;
   virtual bool testLowSpeed () const final;
+  virtual void activatePort () final;
+  virtual void deactivatePort () final;
   virtual void disablePort () final;
   virtual void enablePort () final;
   virtual void setReset (bool b_active) final;

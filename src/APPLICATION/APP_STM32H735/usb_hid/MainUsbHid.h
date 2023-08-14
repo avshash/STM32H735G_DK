@@ -1,5 +1,5 @@
-#ifndef _MAIN_USB_H_
-#define _MAIN_USB_H_
+#ifndef _MAIN_USB_HID_H_
+#define _MAIN_USB_HID_H_
 
 #include "Main.h"
 #include "PhysicalModuleManagerPhysical.h"
@@ -11,12 +11,12 @@
 #include "CellData.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    MainUsb
+// @class:    MainUsbHid
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class MainUsb : public Main
+class MainUsbHid : public Main
 {
 public:
-  MainUsb ();
+  MainUsbHid ();
 
 private:
   virtual void registerPhaseStarted (uint32_t actions_count) final;
@@ -30,8 +30,7 @@ private:
   PhysicalModuleManagerInterrupts m_interrupts;
 
   UsbDeviceSingleHidMouse m_mouse;
-  // AVSHASH
-  // UsbDeviceSingleHidKeyboard m_keyboard;
+  UsbDeviceSingleHidKeyboard m_keyboard;
   Timer m_green_led_timer;
   bool m_green_led_on;
   bool m_refresh_display;
@@ -39,7 +38,7 @@ private:
 
 };
 
-typedef MainUsb ApplicationMain;
+typedef MainUsbHid ApplicationMain;
 
-#endif  // _MAIN_USB_H_
+#endif  // _MAIN_USB_HID_H_
 

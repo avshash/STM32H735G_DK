@@ -143,6 +143,11 @@ UsbChannelSingle::getChannelState () const
 void
 UsbChannelSingle::sendRequest (uint16_t request_length, uint8_t enable_delay)
 {
+  if (m_channel_index < 0)
+  {
+    return;
+  }
+
   ModuleManagerUsb & module_usb = ModuleManager::getUsb ();
   UsbChannelsManager & channels_manager = module_usb.getChannelsManager ();
 
@@ -156,6 +161,11 @@ UsbChannelSingle::sendRequest (uint16_t request_length, uint8_t enable_delay)
 void
 UsbChannelSingle::receiveReply (uint16_t request_length, uint8_t enable_delay)
 {
+  if (m_channel_index < 0)
+  {
+    return;
+  }
+
   ModuleManagerUsb & module_usb = ModuleManager::getUsb ();
   UsbChannelsManager & channels_manager = module_usb.getChannelsManager ();
 

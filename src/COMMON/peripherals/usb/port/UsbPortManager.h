@@ -32,6 +32,8 @@ private:
   void tickPowerDownPending ();
   virtual void portResetAction (bool b_reset_active) final;
 
+  virtual void activatePort () = 0;
+  virtual void deactivatePort () = 0;
   virtual void enablePort () = 0;
   virtual void setReset (bool b_active) = 0;
   virtual TypeUsbPortState getPhysicalState () = 0;

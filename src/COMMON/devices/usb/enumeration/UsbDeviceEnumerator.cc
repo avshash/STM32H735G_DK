@@ -96,29 +96,25 @@ UsbDeviceEnumerator::parseDeviceReply ()
   switch (m_state)
   {
     case USB_ENUMERATOR_GET_MAXIMUM_PACKET_SIZE:
-      parseGetMaximumPacketSize ();
-      break;
+      return parseGetMaximumPacketSize ();
 
     case USB_ENUMERATOR_SET_ADDRESS:
-      setAddressAck ();
-      break;
+      return setAddressAck ();
 
     case USB_ENUMERATOR_GET_DEVICE_DESCRIPTOR:
-      parseDeviceDescriptor ();
-      break;
+      return parseDeviceDescriptor ();
 
     case USB_ENUMERATOR_GET_CONFIGURATION:
-      parseConfiguration ();
-      break;
+      return parseConfiguration ();
 
     case USB_ENUMERATOR_DEVICE_CONFIGURATION:
-      tickDeviceConfiguration ();
-      break;
+      return tickDeviceConfiguration ();
 
     default:
-      ASSERT_CRITICAL (false);
       break;
   }
+
+  ASSERT_DEV (false);
 }
 
 
@@ -135,13 +131,14 @@ UsbDeviceEnumerator::tickReset ()
       if (m_timer.testExpired ())
       {
         m_active_port->portResetAction (false);
+        m_timer.leaseFromNow (500);
         setState (USB_ENUMERATOR_WAIT_ENABLE);
       }
       break;
 
     default:
-      setState (USB_ENUMERATOR_IDLE);
-      break;
+      // error somewhere.
+      return registerControlError ("Aborting device reset - port disabled.");
   }
 }
 
@@ -155,11 +152,10 @@ UsbDeviceEnumerator::tickWaitEnable ()
   switch (m_active_port->getPortState ())
   {
     case USB_PORT_ENABLED:
+      if (m_timer.testExpired ())
       {
         m_device_setup.attachChannel (m_active_port);
-
-        // Request device descriptor.
-        sendControlRequest (USB_DEVICE_REQUEST_GET_DESCRIPTOR, 0, 8, 100);
+        sendControlRequest (USB_DEVICE_REQUEST_GET_DESCRIPTOR, 0, 8, 200);
         setState (USB_ENUMERATOR_GET_MAXIMUM_PACKET_SIZE);
       }
       break;
@@ -169,12 +165,10 @@ UsbDeviceEnumerator::tickWaitEnable ()
       break;
 
     case USB_PORT_POWER_DOWN_PENDING:
-      registerControlError ("Port powering down");
-      break;
+      return registerControlError ("Port powering down");
 
     default:
-      registerControlError ("Unexpected port state.");
-      break;
+      return registerControlError ("Unexpected port state.");
   }
 }
 
@@ -205,7 +199,7 @@ UsbDeviceEnumerator::parseGetMaximumPacketSize ()
   uint16_t device_address = devices_manager.getFreeAddress ();
 
   // Set device new address.
-  sendControlRequest (USB_DEVICE_REQUEST_SET_ADDRESS, device_address, 0, 100);
+  sendControlRequest (USB_DEVICE_REQUEST_SET_ADDRESS, device_address, 0, 200);
   setState (USB_ENUMERATOR_SET_ADDRESS);
 }
 
@@ -223,7 +217,7 @@ UsbDeviceEnumerator::setAddressAck ()
   m_device_setup.setupChannelParam (USB_CHANNEL_PARAM_DEVICE_ADDRESS, device_address);
 
   // Request device descriptor.
-  sendControlRequest (USB_DEVICE_REQUEST_GET_DESCRIPTOR, 0, 18, 100);
+  sendControlRequest (USB_DEVICE_REQUEST_GET_DESCRIPTOR, 0, 18, 200);
   setState (USB_ENUMERATOR_GET_DEVICE_DESCRIPTOR);
 }
 
@@ -271,7 +265,7 @@ UsbDeviceEnumerator::parseDeviceDescriptor ()
   }
 
   // Get short configuration.
-  sendControlRequest (USB_DEVICE_REQUEST_GET_CONFIGURATION, 0, 8, 100);
+  sendControlRequest (USB_DEVICE_REQUEST_GET_CONFIGURATION, 0, 8, 200);
   setState (USB_ENUMERATOR_GET_CONFIGURATION);
 }
 
@@ -292,7 +286,7 @@ UsbDeviceEnumerator::parseConfiguration ()
   {
     // Short configuration prefix.
     ASSERT_TEST (reply_size == 8);
-    sendControlRequest (USB_DEVICE_REQUEST_GET_CONFIGURATION, 0, configuration_length, 100);
+    sendControlRequest (USB_DEVICE_REQUEST_GET_CONFIGURATION, 0, configuration_length, 200);
     // State remains 'USB_ENUMERATOR_GET_CONFIGURATION'.
   }
   else
@@ -325,6 +319,8 @@ UsbDeviceEnumerator::setConfiguringDevice (const UsbDeviceConfiguration & config
 
   setState (USB_ENUMERATOR_DEVICE_CONFIGURATION);
   m_configuring_device->initiateConfiguration (m_device_setup);
+
+  ASSERT_TEST (m_configuring_device->getDeviceState () != USB_DEVICE_SINGLE_CLOSED);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +379,7 @@ UsbDeviceEnumerator::waitControlReply ()
     return true;
   }
 
-  if ((control_state != USB_CHANNEL_ACTIVE) &&
+  if ((control_state != USB_CHANNEL_ACTIVE) && (control_state != USB_CHANNEL_NACK) &&
       (control_state != USB_CHANNEL_READY_IN) && (control_state != USB_CHANNEL_READY_OUT))
   {
     registerControlError ("Channel error.");

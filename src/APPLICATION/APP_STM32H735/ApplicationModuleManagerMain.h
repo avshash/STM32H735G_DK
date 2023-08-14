@@ -14,8 +14,12 @@
 #include "touch_screen/MainTouchScreen.h"
 #endif  // _MODULE_MAIN_TOUCH_SCREEN
 
-#ifdef _MODULE_MAIN_USB
-#include "usb/MainUsb.h"
-#endif  // _MODULE_MAIN_USB
+#ifdef _MODULE_MAIN_USB_HID
+#include "usb_hid/MainUsbHid.h"
+#endif  // _MODULE_MAIN_USB_HID
+
+#ifdef _MODULE_MAIN_USB_PRINTER
+#include "usb_printer/MainUsbPrinter.h"
+#endif  // _MODULE_MAIN_USB_PRINTER
 
 

@@ -9,6 +9,7 @@ Disc735UsbPortManager::Disc735UsbPortManager (UsbChannelsManager & channels_mana
   PhysicalUsbPortManager (channels_manager),
   m_fs_dm (GPIO_BANK_A, 11),
   m_fs_dp (GPIO_BANK_A, 12),
+  m_fs_id (GPIO_BANK_A, 10),
   m_fs_pwr_en (GPIO_BANK_H, 5),
   m_fs_ovcr (GPIO_BANK_G, 13)
 {
@@ -23,6 +24,9 @@ Disc735UsbPortManager::activateGpio ()
 {
   m_fs_dm.activate (10, GPIO_SPEED_HIGH, GPIO_LOAD_DISCONNECTED, GPIO_OUTPUT_PUSH_PULL);
   m_fs_dp.activate (10, GPIO_SPEED_HIGH, GPIO_LOAD_DISCONNECTED, GPIO_OUTPUT_PUSH_PULL);
+
+  // Connect the 'id' pin to ground to mark this connector as type A (host).
+  m_fs_id.activatePushPull (GPIO_SPEED_LOW, false);
 
   m_fs_ovcr.activate (GPIO_LOAD_PULL_UP);
   m_fs_pwr_en.activatePushPull (GPIO_SPEED_LOW, false);

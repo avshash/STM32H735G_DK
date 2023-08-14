@@ -27,8 +27,6 @@ UsbPortManager::powerDownTest ()
 {
   if (testOverCurrentActive ())
   {
-    setupPower (false);
-
     switch (m_port_state)
     {
       case USB_PORT_POWERED_DOWN:
@@ -60,7 +58,7 @@ UsbPortManager::setPortState (TypeUsbPortState new_port_state, uint32_t lease_ti
     "'reset active'",
     "'connected'",
     "'enabled'",
-    "'powered down'"
+    "'powered down pending'"
   };
 
   if (m_port_state == USB_PORT_ENABLED)
@@ -110,8 +108,8 @@ UsbPortManager::portResetAction (bool b_reset_active)
   {
     ASSERT_TEST (m_port_state == USB_PORT_RESET_ACTIVE);
 
-    // Wait for the device no more than 100 ms.
-    setPortState (USB_PORT_CONNECTED, 100);
+    // Wait for the device no more than 200 ms.
+    setPortState (USB_PORT_CONNECTED, 200);
   }
 }
 
@@ -163,11 +161,11 @@ UsbPortManager::tick ()
 void
 UsbPortManager::tickPoweredDown ()
 {
-  setupPower (false);
-
   if (m_timeout.testExpired ())
   {
     setPortState (USB_PORT_DISCONNECTED);
+
+    activatePort ();
     setupPower (true);
   }
 }
@@ -186,8 +184,8 @@ UsbPortManager::tickDisconnected ()
 
   if (physical_state == USB_PORT_CONNECTED)
   {
-    // Wait 100 ms between physical connection and the enumeration process.
-    setPortState (USB_PORT_ENUMERATION_PENDING, 100);
+    // Wait 200 ms between physical connection and the enumeration process.
+    setPortState (USB_PORT_ENUMERATION_PENDING, 200);
   }
 }
 
@@ -276,6 +274,7 @@ void
 UsbPortManager::tickPowerDownPending ()
 {
   setupPower (false);
+  deactivatePort ();
 
   // Keep port powered down for 1 second before setting power back on.
   setPortState (USB_PORT_POWERED_DOWN, 1000);

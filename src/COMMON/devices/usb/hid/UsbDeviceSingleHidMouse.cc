@@ -10,9 +10,7 @@
 // @method:   constructor
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 UsbDeviceSingleHidMouse::UsbDeviceSingleHidMouse  () :
-  UsbDeviceSingleHid (),
-  m_x_max (0),
-  m_y_max (0)
+  UsbDeviceSingleHid ()
 {
   memset (&m_state, 0 , sizeof (m_state));
 }
@@ -39,23 +37,6 @@ UsbDeviceSingleHidMouse::getBootReportSize () const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    UsbDeviceSingleHidMouse
-// @method:   registerInitialState
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void
-UsbDeviceSingleHidMouse::registerInitialState (const uint8_t * initial_state)
-{
-  ModuleManagerLcd & lcd_manager = ModuleManager::getLcd ();
-  m_x_max = 16 * lcd_manager.getParamValue (LCD_PARAM_WIDTH);
-  m_y_max = 16 * lcd_manager.getParamValue (LCD_PARAM_HEIGHT);
-
-  m_state.m_mouse_is_active = 1;
-  m_state.m_mouse_buttons = initial_state[0];
-  m_state.m_x = m_x_max / 2;
-  m_state.m_y = m_y_max / 2;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    UsbDeviceSingleHidMouse
 // @method:   registerReport
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
@@ -67,16 +48,20 @@ UsbDeviceSingleHidMouse::registerReport (const uint8_t * report)
     return;
   }
 
+  ModuleManagerLcd & lcd_manager = ModuleManager::getLcd ();
+  uint16_t x_max = 16 * lcd_manager.getParamValue (LCD_PARAM_WIDTH);
+  uint16_t y_max = 16 * lcd_manager.getParamValue (LCD_PARAM_HEIGHT);
+
   // Left button factor is 16. Right button factor is 1. No button pressed is factor 4.
   int factor = ((m_state.m_mouse_buttons & 0x02) != 0) ? 1 : (((m_state.m_mouse_buttons & 0x01) != 0) ? 16 : 4);
 
   int32_t x = ((int32_t) m_state.m_x) + (factor * (int8_t) report[1]);
   x = MAX (0, x);
-  m_state.m_x = MIN (x, m_x_max);
+  m_state.m_x = MIN (x, x_max);
 
   int32_t y = ((int32_t) m_state.m_y) + (factor * (int8_t) report[2]);
   y = MAX (0, y);
-  m_state.m_y = MIN (y, m_y_max);
+  m_state.m_y = MIN (y, y_max);
 
   if ((report[1] != 0) || (report[2] != 0) || (m_state.m_mouse_buttons != report[0]))
   {
@@ -93,20 +78,10 @@ UsbDeviceSingleHidMouse::registerReport (const uint8_t * report)
 // @method:   getIdlePeriod
 // @return:   '0' means that mouse remains indefinitely idle.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-uint8_t
+uint16_t
 UsbDeviceSingleHidMouse::getIdlePeriod () const
 {
   return 0;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// @class:    UsbDeviceSingleHidMouse
-// @method:   testDeviceActive
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool
-UsbDeviceSingleHidMouse::testDeviceActive () const
-{
-  return (m_state.m_mouse_is_active != 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

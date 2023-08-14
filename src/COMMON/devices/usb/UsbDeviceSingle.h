@@ -16,6 +16,7 @@ public:
   TypeUsbDeviceSingleState getDeviceState () const;
   void tick ();
   void configurationError ();
+  bool testDeviceActive () const;
 
   virtual bool testConfiguration (const UsbDeviceConfiguration &) const = 0;
   virtual void initiateConfiguration (UsbChannelSingleControlDevice &) = 0;

@@ -71,15 +71,11 @@ UsbDeviceSingleHid::registerSetupReply (UsbChannelSingleControlDevice & control_
       break;
 
     case USB_DEVICE_REQUEST_SET_CONFIGURATION:
-      control_channel.controlTransaction (USB_DEVICE_REQUEST_SET_IDLE, getIdlePeriod ());
+      ASSERT_TEST (getIdlePeriod () < 2560);
+      control_channel.controlTransaction (USB_DEVICE_REQUEST_SET_IDLE, (getIdlePeriod () / 10) << 8);
       break;
 
     case USB_DEVICE_REQUEST_SET_IDLE:
-      control_channel.controlTransaction (USB_DEVICE_REQUEST_HID_STATE, 0, getBootReportSize ());
-      break;
-
-    case USB_DEVICE_REQUEST_HID_STATE:
-      registerInitialState (control_channel.getControlReply ());
       setDeviceState (USB_DEVICE_SINGLE_ACTIVE);
       break;
 
@@ -111,7 +107,7 @@ UsbDeviceSingleHid::handleConfigurationReply (UsbChannelSingleControlDevice & co
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // @class:    UsbDeviceSingleHid
-// @method:   handleConfigurationReply
+// @method:   attachChannel
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void
 UsbDeviceSingleHid::attachChannel (UsbChannelSingleControlDevice & control_channel)

@@ -141,6 +141,10 @@ UsbDeviceConfiguration::parseInterfaceDescriptor (const uint8_t * descriptor_bas
 
       break;
 
+    case 0x07:
+      m_device_class = USB_DEVICE_CLASS_PRINTER;
+      break;
+
     default:
       break;
   }

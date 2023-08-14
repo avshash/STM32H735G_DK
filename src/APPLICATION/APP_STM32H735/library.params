@@ -3,6 +3,7 @@ DIR_MODULE main_basic
 DIR_MODULE flash_test
 DIR_MODULE sdram_test
 DIR_MODULE touch_screen
-DIR_MODULE usb
+DIR_MODULE usb_hid
+DIR_MODULE usb_printer
 #
 

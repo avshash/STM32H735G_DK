@@ -23,6 +23,7 @@ private:
 
   PhysicalGpioAf m_fs_dm;
   PhysicalGpioAf m_fs_dp;
+  PhysicalGpioOut m_fs_id;
   PhysicalGpioOut m_fs_pwr_en;
   PhysicalGpioIn m_fs_ovcr;
 };

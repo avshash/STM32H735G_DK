@@ -6,4 +6,5 @@ COMPILE_FILE ARM_GPP   UsbDeviceSingle
 #
 DIR_MODULE enumeration
 DIR_MODULE hid
+DIR_MODULE printer
 

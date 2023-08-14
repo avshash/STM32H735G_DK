@@ -37,11 +37,37 @@ void
 H735UsbPortManager::configure ()
 {
   enableOtgClock ();
-  setupOtgFsLs ();
-  setupFifo ();
   enablePower ();
 
   m_interrupt_handler.configure ();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @class:    H735UsbPortManager
+// @method:   activatePort
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void
+H735UsbPortManager::activatePort ()
+{
+  setupFifo ();
+  setupOtgFsLs ();
+
+  // Clear active host-port interrupts. Clear the 'reset' bit if active.
+  OTG_FS_REGISTERS.HPRT = OTG_FS_REGISTERS.HPRT & 0xFFFFFEFFUL;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// @class:    H735UsbPortManager
+// @method:   deactivatePort
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void
+H735UsbPortManager::deactivatePort ()
+{
+  // Do a complete core soft reset, just to be on the safe side.
+  while ((OTG_FS_REGISTERS.GRSTCTL & 0x80000000UL) == 0);
+  OTG_FS_REGISTERS.GRSTCTL = OTG_FS_REGISTERS.GRSTCTL | 0x01;
+  while ((OTG_FS_REGISTERS.GRSTCTL & 0x01) == 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,14 +80,14 @@ H735UsbPortManager::enablePort ()
   // Verify that interrupts are disabled.
   ASSERT_TEST ((OTG_FS_REGISTERS.GAHBCFG & 0x00000001UL) == 0);
 
-  // Enable the start of frame interrupt, as well as the rxflvlm interrupt (incoming packet).
-  OTG_FS_REGISTERS.GINTMSK = 0x00000018UL;
-
   // Reset all active interrupts before unmasking the otg interrupts.
   OTG_FS_REGISTERS.GINTSTS = OTG_FS_REGISTERS.GINTSTS;
 
   // Clear active host-port interrupts (exclude the enabled bit).
   OTG_FS_REGISTERS.HPRT = OTG_FS_REGISTERS.HPRT & 0xFFFFFFFBUL;
+
+  // Enable the start of frame interrupt, as well as the rxflvlm interrupt (incoming packet).
+  OTG_FS_REGISTERS.GINTMSK = 0x00000018UL;
 
   // Unmask the otg interrupts.
   OTG_FS_REGISTERS.GAHBCFG = OTG_FS_REGISTERS.GAHBCFG | 0x00000001UL;
